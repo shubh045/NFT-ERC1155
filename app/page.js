@@ -68,8 +68,8 @@ export default function Home() {
       } catch (error) {
         const accounts = await provider.listAccounts();
         if (accounts.length == 0) {
-          localStorage.removeItem("address");
-          setConnect(false);
+          // localStorage.removeItem("address");
+          // setConnect(false);
           // toast("Account not connected!");
           return;
         }
