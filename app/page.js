@@ -25,8 +25,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    
     window.ethereum.on("accountsChanged", async () => {
+      const provider = new ethers.BrowserProvider(window.ethereum);
       try {
         const signer = await provider.getSigner();
         const address = await signer.getAddress();
