@@ -48,9 +48,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const provider = new ethers.BrowserProvider(window.ethereum);
     const setContractVal = async () => {
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const contract = new ethers.Contract(contractAddress, NFT.abi, signer);
         const address = await signer.getAddress();
@@ -65,11 +65,18 @@ export default function Home() {
           setNftBalance(Number(nftB));
         }
       } catch (error) {
+        const accounts = await provider.listAccounts();
+        if (accounts.length == 0) {
+          localStorage.removeItem("address");
+          setConnect(false);
+          // toast("Account not connected!");
+          return;
+        }
         const errorMessage = error.message.split("(")[0];
         toast(errorMessage);
       }
     };
-    setContractVal();
+    provider && setContractVal();
   }, [connect]);
 
   const connectWallet = async () => {
@@ -190,7 +197,9 @@ export default function Home() {
             {connect && (
               <p className={styles.tokensp}>Token(s) Present: {nftBalance}</p>
             )}
-            <div className={styles.imageContainer}>
+            <div
+              className={connect ? styles.imageContainer : styles.imagecont1}
+            >
               <Image src={nft} alt="" className={styles.image} />
             </div>
             {connect && (

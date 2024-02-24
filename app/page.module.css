@@ -52,15 +52,19 @@
   margin-top: 5%;
 }
 
-.imageContainer {
+.imageContainer, .imagecont1 {
   display: flex;
   justify-content: center;
-  /* margin-top: 10px; */
+  /* margin-top: 20px; */
+  align-items: center;
   width: 100%;
   height: 75%;
   border-radius: 10px;
 }
 
+.imagecont1{
+  margin-top: 50px;
+}
 .tokensp{
   padding-top: 10px;
   display: flex;
