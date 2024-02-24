@@ -172,7 +172,7 @@ export default function Home() {
       <ToastContainer position="top-left" />
       <div>
         <nav className={styles.navbar}>
-          <h2 className={styles.heading}>MINFT</h2>
+          <h2 className={styles.heading}>MINFT1155</h2>
           {connect ? (
             <p className={styles.userAddress}>
               {`${localStorage.getItem("address").slice(0, 7)}...${localStorage

@@ -4,7 +4,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "MINFT",
+  title: "MINFT1155",
   description: "Mint NFT",
 };
 
