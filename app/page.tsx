@@ -1,6 +1,6 @@
 "use client";
 
-import { ethers } from "ethers";
+import { BaseContract, ethers } from "ethers";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,29 +8,31 @@ import "react-toastify/dist/ReactToastify.css";
 import NFT from "./assets/abi/NFT.json";
 import nft from "./assets/images/nft.jpg";
 import styles from "./page.module.css";
+import { SuperCarERC1155__factory, SuperCarERC1155 } from "../typechain-types";
 
-export default function Home() {
-  const [account, setAccount] = useState("");
-  const [contract, setContract] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [burnLoading, setBurnLoading] = useState(false);
-  const [connect, setConnect] = useState("");
-  const [mintPrice, setMintPrice] = useState(0);
-  const [burnPrice, setBurnPrice] = useState(0);
-  const [nftBalance, setNftBalance] = useState(0);
-  const contractAddress = "0x1E81a1616A875F5F991083E55181322Cc1c7e5f1";
+export default function Home(): JSX.Element {
+  const [account, setAccount] = useState<string>("");
+  const [contract, setContract] = useState<SuperCarERC1155 | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [burnLoading, setBurnLoading] = useState<boolean>(false);
+  const [connect, setConnect] = useState<string>("");
+  const [mintPrice, setMintPrice] = useState<number>(0);
+  const [burnPrice, setBurnPrice] = useState<number>(0);
+  const [nftBalance, setNftBalance] = useState<number>(0);
+  const contractAddress: string = "0x80f7f95Ef489C181656C6c9999402c59Fd1e4E46";
 
   useEffect(() => {
     setConnect(localStorage.getItem("address"));
   }, []);
 
   useEffect(() => {
-    
     window.ethereum.on("accountsChanged", async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider: ethers.BrowserProvider = new ethers.BrowserProvider(
+        window.ethereum
+      );
       try {
-        const signer = await provider.getSigner();
-        const address = await signer.getAddress();
+        const signer: ethers.JsonRpcSigner = await provider.getSigner();
+        const address: string = await signer.getAddress();
         setAccount(address);
         localStorage.setItem("address", address);
         setConnect(localStorage.getItem("address"));
@@ -38,11 +40,11 @@ export default function Home() {
         const accounts = await provider.listAccounts();
         if (accounts.length == 0) {
           localStorage.removeItem("address");
-          setConnect(false);
+          setConnect("");
           toast("Account not connected!");
           return;
         }
-        const errorMessage = error.message.split("(")[0];
+        const errorMessage: string = error.message.split("(")[0];
         toast(errorMessage);
       }
     });
@@ -52,42 +54,58 @@ export default function Home() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const setContractVal = async () => {
       try {
-        const signer = await provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, NFT.abi, signer);
-        const address = await signer.getAddress();
+        const signer: ethers.JsonRpcSigner = await provider.getSigner();
+        const contract = new ethers.Contract(
+          contractAddress,
+          NFT.abi,
+          signer
+        )as BaseContract as SuperCarERC1155;;
+        const address: string = await signer.getAddress();
+        const NFTContract = SuperCarERC1155__factory.connect(
+          contractAddress,
+          provider
+        );
+
         setAccount(address);
         setContract(contract);
 
         if (contract) {
-          const cMintPrice = await contract.currentPrice();
-          const nftB = await contract.balanceOf(await signer.getAddress(), 0);
-          setMintPrice(ethers.formatEther(Number(cMintPrice).toString()));
-          setBurnPrice(localStorage.getItem("burnPrice"));
-          setNftBalance(Number(nftB));
+          const cMintPrice: number = Number(await contract.currentPrice());
+          const nftB: number = Number(
+            await contract.balanceOf(await signer.getAddress(), 0)
+          );
+          setMintPrice(Number(ethers.formatEther(cMintPrice.toString())));
+          setBurnPrice(Number(localStorage.getItem("burnPrice")));
+          setNftBalance(nftB);
         }
       } catch (error) {
-        const accounts = await provider.listAccounts();
+        const accounts: ethers.JsonRpcSigner[] = await provider.listAccounts();
         if (accounts.length == 0) {
-          // localStorage.removeItem("address");
-          // setConnect(false);
+          localStorage.removeItem("address");
+          setConnect("");
           // toast("Account not connected!");
           return;
         }
-        const errorMessage = error.message.split("(")[0];
+        const errorMessage: string = error.message.split("(")[0];
         toast(errorMessage);
       }
     };
     provider && setContractVal();
   }, [connect]);
 
-  const connectWallet = async () => {
+  const connectWallet = async (): Promise<void> => {
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider: ethers.BrowserProvider = new ethers.BrowserProvider(
+        window.ethereum
+      );
       if (!connect) {
-        const accounts = await provider.send("eth_requestAccounts", []);
+        const accounts: Promise<string[]> = await provider.send(
+          "eth_requestAccounts",
+          []
+        );
         if (accounts) {
-          const signer = await provider.getSigner();
-          const address = await signer.getAddress();
+          const signer: ethers.JsonRpcSigner = await provider.getSigner();
+          const address: string = await signer.getAddress();
           setAccount(address);
           localStorage.setItem("address", address);
 
@@ -95,23 +113,29 @@ export default function Home() {
             contractAddress,
             NFT.abi,
             signer
+          ) as BaseContract as SuperCarERC1155;
+          const NFTContract = SuperCarERC1155__factory.connect(
+            contractAddress,
+            provider,
           );
           setContract(contract);
           setConnect(localStorage.getItem("address"));
         }
       }
     } catch (error) {
-      const errorMessage = error.message.split("(")[0];
+      const errorMessage: string = error.message.split("(")[0];
       toast(errorMessage);
     }
   };
 
-  const mintNFT = async () => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
+  const mintNFT = async (): Promise<void> => {
+    const provider: ethers.BrowserProvider = new ethers.BrowserProvider(
+      window.ethereum
+    );
 
-    const { chainId } = provider.getNetwork();
+    const { chainId } = await provider.getNetwork();
 
-    if (chainId != 11155111) {
+    if (Number(chainId) != 11155111) {
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [
@@ -121,55 +145,61 @@ export default function Home() {
         ],
       });
     }
-    const tokenURI =
-      "ipfs://bafkreiebuhhy4e2p23nquu3llaftgvpy6cycpdfpuld7ccmfnksrzt2gom";
+    // const tokenURI:string =
+    //   "ipfs://bafkreiebuhhy4e2p23nquu3llaftgvpy6cycpdfpuld7ccmfnksrzt2gom";
 
     setLoading(true);
     try {
-      const prevMintPrice = await contract.currentPrice();
-      const options = { value: Number(prevMintPrice).toString() };
-      const mint = await contract.mint(0, 1, options);
+      const prevMintPrice: number = Number(await contract.currentPrice());
+      const options = { value: prevMintPrice.toString() };
+      const mint: ethers.ContractTransactionResponse = await contract.mint(
+        0,
+        1,
+        options
+      );
       await mint.wait();
-      const currentMintPrice = await contract.currentPrice();
-      setMintPrice(ethers.formatEther(Number(currentMintPrice).toString()));
-      setBurnPrice(ethers.formatEther(Number(prevMintPrice).toString()));
+      const currentMintPrice: number = Number(await contract.currentPrice());
+      setMintPrice(Number(ethers.formatEther(currentMintPrice.toString())));
+      setBurnPrice(Number(ethers.formatEther(prevMintPrice).toString()));
       localStorage.setItem(
         "burnPrice",
-        ethers.formatEther(Number(prevMintPrice).toString())
+        ethers.formatEther(prevMintPrice.toString())
       );
-      const nftB = await contract.balanceOf(account, 0);
-      setNftBalance(Number(nftB));
+      const nftB: number = Number(await contract.balanceOf(account, 0));
+      setNftBalance(nftB);
       toast("Mint Successful");
     } catch (error) {
-      const errorMessage = error.message.split("(")[0];
+      const errorMessage: string = error.message.split("(")[0];
       toast(errorMessage);
     }
     setLoading(false);
   };
 
-  const burnNFT = async () => {
+  const burnNFT = async (): Promise<void> => {
     try {
       setBurnLoading(true);
       const burning = await contract.burnToken(0, 1);
       await burning.wait();
-      const currentMintPrice = await contract.currentPrice();
-      setMintPrice(ethers.formatEther(Number(currentMintPrice).toString()));
-      const totalNFt = await contract["totalSupply(uint256)"](0);
-      const totalNFt1 = Number(totalNFt) - 1;
-      const afterBurnPrice = (totalNFt1 * totalNFt1) / 4000;
+      const currentMintPrice: number = Number(await contract.currentPrice());
+      setMintPrice(Number(ethers.formatEther(currentMintPrice).toString()));
+      const totalNFt: number = Number(
+        await contract["totalSupply(uint256)"](0)
+      );
+      const totalNFt1: number = totalNFt - 1;
+      const afterBurnPrice: number = (totalNFt1 * totalNFt1) / 4000;
       setBurnPrice(afterBurnPrice);
-      if (Number(totalNFt) === 1) {
+      if (totalNFt === 1) {
         setBurnPrice(0.0001);
       }
       localStorage.setItem(
         "burnPrice",
-        Number(totalNFt) === 1 ? "0.0001" : afterBurnPrice.toString()
+        totalNFt === 1 ? "0.0001" : afterBurnPrice.toString()
       );
-      const nftB = await contract.balanceOf(account, 0);
-      setNftBalance(Number(nftB));
+      const nftB: number = Number(await contract.balanceOf(account, 0));
+      setNftBalance(nftB);
       toast("Burn complete");
     } catch (error) {
-      const errorMessage = error.message.split("(")[0];
+      const errorMessage: string = error.message.split("(")[0];
       toast(errorMessage);
     }
     setBurnLoading(false);
