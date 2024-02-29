@@ -1,9 +1,8 @@
-const hre = require("hardhat");
+import {ethers} from "hardhat";
 
 async function main() {
 
-  // const NFT = await hre.ethers.deployContract("NFT", ["Super Car", "SUP", hre.ethers.parseEther('0.02')]);
-  const NFT = await hre.ethers.deployContract("SuperCarERC1155", ["https://bafkreiebuhhy4e2p23nquu3llaftgvpy6cycpdfpuld7ccmfnksrzt2gom.ipfs.nftstorage.link/", 1000]);
+  const NFT = await ethers.deployContract("SuperCarERC1155", ["https://bafkreiebuhhy4e2p23nquu3llaftgvpy6cycpdfpuld7ccmfnksrzt2gom.ipfs.nftstorage.link/", 1000]);
 
   await NFT.waitForDeployment();
 
