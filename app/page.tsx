@@ -44,7 +44,8 @@ export default function Home(): JSX.Element {
           toast("Account not connected!");
           return;
         }
-        const errorMessage: string = error.message.split("(")[0];
+        const error1 = error as Error;
+        const errorMessage: string = error1.message.split("(")[0];
         toast(errorMessage);
       }
     });
@@ -86,7 +87,8 @@ export default function Home(): JSX.Element {
           // toast("Account not connected!");
           return;
         }
-        const errorMessage: string = error.message.split("(")[0];
+        const error1 = error as Error;
+        const errorMessage: string = error1.message.split("(")[0];
         toast(errorMessage);
       }
     };
@@ -123,7 +125,8 @@ export default function Home(): JSX.Element {
         }
       }
     } catch (error) {
-      const errorMessage: string = error.message.split("(")[0];
+      const error1 = error as Error;
+      const errorMessage: string = error1.message.split("(")[0];
       toast(errorMessage);
     }
   };
@@ -169,7 +172,8 @@ export default function Home(): JSX.Element {
       setNftBalance(nftB);
       toast("Mint Successful");
     } catch (error) {
-      const errorMessage: string = error.message.split("(")[0];
+      const error1 = error as Error;
+      const errorMessage: string = error1.message.split("(")[0];
       toast(errorMessage);
     }
     setLoading(false);
@@ -198,8 +202,9 @@ export default function Home(): JSX.Element {
       const nftB: number = Number(await contract.balanceOf(account, 0));
       setNftBalance(nftB);
       toast("Burn complete");
-    } catch (error) {
-      const errorMessage: string = error.message.split("(")[0];
+    } catch (error ) {
+      const error1 = error as Error;
+      const errorMessage: string = error1.message.split("(")[0];
       toast(errorMessage);
     }
     setBurnLoading(false);
